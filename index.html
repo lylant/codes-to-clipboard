@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>원터치 클립보드 복사 도우미</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #E0E0E0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+        
+        #inputText {
+            display: block;
+            width: 80%;
+            max-width: 400px;
+            height: 400px;
+            margin-bottom: 20px;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border: 1px solid #333;
+            border-radius: 5px;
+            resize: vertical;
+        }
+        
+        #generateButton {
+            padding: 12px 20px;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #6200ee;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 20px;
+			max-width: 340px;
+            width: calc(100% - 40px);
+        }
+        
+        #generateButton:hover {
+            background-color: #3700b3;
+        }
+        
+        #buttonsContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            font-size: 16px;
+            cursor: pointer;
+            color: #ffffff;
+            background-color: #333;
+            border: 1px solid #444;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #444;
+        }
+        
+        .highlight {
+            background-color: #bb86fc;
+            color: #121212;
+        }
+
+        .highlight:hover {
+            background-color: #d4a3ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>원터치 클립보드 복사 도우미</h1>
+    <textarea id="inputText" placeholder="코드를 입력하세요 (한 줄에 한 코드씩)" rows="12"></textarea>
+    <button id="generateButton" onclick="generateButtons()">복사 버튼 생성하기</button>
+    <div id="buttonsContainer"></div>
+
+    <script>
+        function generateButtons() {
+            const container = document.getElementById('buttonsContainer');
+            const inputText = document.getElementById('inputText').value;
+            
+            // Hide input interfaces
+            document.getElementById('inputText').style.display = 'none';
+            document.getElementById('generateButton').style.display = 'none';
+            container.innerHTML = '';
+            
+            // Process input strings, then creates a copy button for each
+            const lines = inputText.split('\n').filter(line => line.trim() !== '');
+            lines.forEach(line => {
+                const button = document.createElement('button');
+                button.textContent = line;
+                button.onclick = () => copyToClipboard(button);
+                container.appendChild(button);
+            });
+            
+            highlightNextButton(0);
+        }
+
+        function copyToClipboard(button) {
+            navigator.clipboard.writeText(button.textContent).then(() => {
+                const buttons = Array.from(document.getElementById('buttonsContainer').children);
+                const currentIndex = buttons.indexOf(button);
+                
+                buttons.forEach(btn => btn.classList.remove('highlight'));
+
+                if (currentIndex === buttons.length - 1) {
+                    highlightNextButton(0); // Loop back to the first button
+                } else {
+                    highlightNextButton(currentIndex + 1);
+                }
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        function highlightNextButton(index) {
+            const buttons = document.getElementById('buttonsContainer').children;
+            if (index < buttons.length) {
+                buttons[index].classList.add('highlight');
+            }
+        }
+    </script>
+</body>
+</html>
